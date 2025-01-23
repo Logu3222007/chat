@@ -8,7 +8,7 @@ const App = () => {
   console.log('msg',messages)
 
   useEffect(() => {
-    const socket = io('http://localhost:5000');
+    const socket = io('https://chat-service-48er.onrender.com');
     setSocketio(socket);
 
     // Listen for messages from the server

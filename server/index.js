@@ -3,12 +3,12 @@ const app = express()
 const http = require('http')
 const server = http.createServer(app)
 const io = require('socket.io')
-const socketio = io(server, { cors: { origin: "http://localhost:3000" } })
+const socketio = io(server, { cors: { origin: "https://chat-10bd.onrender.com/" } })
 const mongoose=require('mongoose')
 const { text } = require('stream/consumers')
-const { timeStamp } = require('console')
+const { timeStamp } = require('console')  
 //db connection
-mongoose.connect('mongodb://localhost:27017/msg').then(()=>{
+mongoose.connect('mongodb+srv://logu3222007:Logu%402007@cluster0.db3xo.mongodb.net/chat').then(()=>{
   console.log('mongodb is connected!')
 })
 .catch((err)=>{
