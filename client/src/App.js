@@ -79,7 +79,6 @@ const App = () => {
   
       // Check if the response is successful
       if (res.status === 200) {
-        alert('Messages deleted successfully!');
         setbox(false)
         
         // Optionally, you could clear the local message state here too
