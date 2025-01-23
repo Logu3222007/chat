@@ -29,7 +29,20 @@ const App = () => {
       socket.disconnect();
     };
   }, []);
+  useEffect(() => {
+    // Fetch messages from the backend when the component mounts
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch('https://chat-service-48er.onrender.com');
+        const data = await response.json();
+        setMessages(data.map(msg => ({ text: msg.text, sender: 'server' })));
+      } catch (err) {
+        console.error('Error fetching messages:', err);
+      }
+    };
 
+    fetchMessages();
+  }, []);
   const submitHandler = (e) => {
     e.preventDefault();
 
