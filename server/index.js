@@ -56,17 +56,25 @@ io.on('connection', (socket) => {
     console.log('User disconnected!');
   });
 });
-app.get('/',async(req,res)=>{
-  try{
+// app.get('/',async(req,res)=>{
+//   try{
 
-    const msgSend=await chatModel.find().sort({createdAt:1})
-    res.status(200).json(msgSend)
-  }
-  catch(err){
-res.status(500).json({message:"server error"})
-  }
+//     const msgSend=await chatModel.find().sort({createdAt:1})
+//     res.status(200).json(msgSend)
+//   }
+//   catch(err){
+// res.status(500).json({message:"server error"})
+//   }
 
-})
+// })
+app.delete('/', async (req, res) => {
+  try {
+    const deleteMsg = await chatModel.deleteMany();
+    res.status(200).json(deleteMsg);
+  } catch (err) {
+    res.status(500).json({ message: 'Error deleting messages', error: err.message });
+  }
+});
 
 server.listen(5000, () => {
   console.log('Server is running on port 5000!');

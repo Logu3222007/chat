@@ -30,20 +30,20 @@ const App = () => {
       socket.disconnect();
     };
   }, []);
-  useEffect(() => {
-    // Fetch messages from the backend when the component mounts
-    const fetchMessages = async () => {
-      try {
-        const response = await fetch('https://chat-service-48er.onrender.com');
-        const data = await response.json();
-        setMessages(data.map(msg => ({ text: msg.text, sender: 'server' })));
-      } catch (err) {
-        console.error('Error fetching messages:', err);
-      }
-    };
+  // useEffect(() => {
+  //   // Fetch messages from the backend when the component mounts
+  //   const fetchMessages = async () => {
+  //     try {
+  //       const response = await fetch('https://chat-service-48er.onrender.com');
+  //       const data = await response.json();
+  //       setMessages(data.map(msg => ({ text: msg.text, sender: 'server' })));
+  //     } catch (err) {
+  //       console.error('Error fetching messages:', err);
+  //     }
+  //   };
 
-    fetchMessages();
-  }, []);
+  //   fetchMessages();
+  // }, []);
   const submitHandler = (e) => {
     e.preventDefault();
 
@@ -70,6 +70,28 @@ const App = () => {
       messageBox.scrollTop = messageBox.scrollHeight;
     }
   }, [messages]); // Run this effect when messages change
+  const clearHandler = async () => {
+    try {
+      // Send DELETE request to the server to delete all messages
+      const res = await fetch('https://chat-service-48er.onrender.com', {
+        method: 'DELETE',
+      });
+  
+      // Check if the response is successful
+      if (res.status === 200) {
+        alert('Messages deleted successfully!');
+        
+        // Optionally, you could clear the local message state here too
+        setMessages([]); // Clears the messages from the UI immediately
+      } else {
+        alert('Failed to delete messages.');
+      }
+    } catch (err) {
+      console.log('Error:', err);
+      alert('An error occurred while deleting messages.');
+    }
+  };
+  
 
   return (
     <div>
@@ -172,7 +194,7 @@ const App = () => {
             </div>
             <div style={{paddingLeft:"120px",paddingTop:"20px"}}>
             <button className='btn btn-danger'onClick={()=>{setbox(false)}}>cancel</button>&nbsp;
-              <button className='btn btn-success'>confirm</button>
+              <button className='btn btn-success'onClick={clearHandler}>confirm</button>
               </div>
             </div>
             </>
