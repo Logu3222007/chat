@@ -1,51 +1,61 @@
-const express = require('express')
-const app = express()
-const http = require('http')
-const server = http.createServer(app)
-const io = require('socket.io')
-const socketio = io(server, { cors: { origin: "https://chat-10bd.onrender.com/" } })
-const mongoose=require('mongoose')
-const { text } = require('stream/consumers')
-const { timeStamp } = require('console')  
-//db connection
-mongoose.connect('mongodb+srv://logu3222007:Logu%402007@cluster0.db3xo.mongodb.net/chat').then(()=>{
-  console.log('mongodb is connected!')
-})
-.catch((err)=>{
-  console.log('mongodb error : '+err)
-})
-//mongose model
-const chatSchema=mongoose.Schema({
-  text:String,
-  
-},
-{
-  timeStamp:true
-})
-const chatModel=mongoose.model('chat',chatSchema)
-socketio.on('connection', (socket) => {
-  console.log('user is connected! ', socket.id)
-  socket.emit('welcome', 'welcome to server')
-  socket.on('message',async(data)=>{
-    console.log('receviced message : ',data)
-    try{
-      const msgInsert= await chatModel.create({
-        text:data
-      })
-    socket.broadcast.emit('broad_cast_msg',msgInsert)
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const mongoose = require('mongoose');
 
-      
+const app = express();
+const server = http.createServer(app);
+
+const io = socketIo(server, {
+  cors: { origin: "https://chat-10bd.onrender.com" },
+  pingInterval: 25000,
+  pingTimeout: 20000,
+  maxPayload: 1000000,
+});
+
+mongoose.connect('mongodb+srv://logu3222007:Logu%402007@cluster0.db3xo.mongodb.net/chat', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('MongoDB is connected!');
+}).catch((err) => {
+  console.log('MongoDB error: ' + err);
+});
+
+const chatSchema = mongoose.Schema({
+  text: String,
+}, {
+  timestamps: true,
+});
+
+const chatModel = mongoose.model('chat', chatSchema);
+
+io.on('connection', (socket) => {
+  console.log('User connected: ', socket.id);
+  socket.emit('welcome', 'Welcome to the server!');
+
+  socket.on('message', async (data) => {
+    console.log('Received message: ', data);
+    try {
+      const msgInsert = await chatModel.create({
+        text: data,
+      });
+
+      socket.broadcast.emit('broad_cast_msg', {
+        text: msgInsert.text,
+        timestamp: msgInsert.createdAt, // Optionally include timestamp
+      });
+    } catch (err) {
+      console.log('Error:', err);
+      socket.emit('error', { message: 'Error saving message', error: err.message });
     }
-    catch(err){
-      console.log('error',err)
-    }
-  })
+  });
+
   socket.on('disconnect', () => {
-    console.log('user disconnected!')
-  })
-})
-
+    console.log('User disconnected!');
+  });
+});
 
 server.listen(5000, () => {
-  console.log('server is connected!')
-})
+  console.log('Server is running on port 5000!');
+});
