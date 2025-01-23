@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
+const cors=require('cors')
 
 const app = express();
 const server = http.createServer(app);
@@ -12,7 +13,7 @@ const io = socketIo(server, {
   pingTimeout: 20000,
   maxPayload: 1000000,
 });
-
+app.use(cors())
 mongoose.connect('mongodb+srv://logu3222007:Logu%402007@cluster0.db3xo.mongodb.net/chat', {
   useNewUrlParser: true,
   useUnifiedTopology: true

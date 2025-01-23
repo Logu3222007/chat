@@ -5,6 +5,7 @@ const App = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]); // State to keep track of all messages
   const [socketio, setSocketio] = useState(null);
+  const [box,setbox] = useState(false)
   console.log('msg',messages)
 
   useEffect(() => {
@@ -147,7 +148,35 @@ const App = () => {
             className="btn btn-success"
             style={{ marginLeft: '10px' }}
             value="Send"
-          />
+          />&nbsp;
+          <button className='btn btn-danger'onClick={()=>{setbox(true)}}>clear</button>
+          {
+            box&&<>
+            <div 
+            style={{backgroundColor:"lightgrey",
+              width:"400px",
+              height:"200px",
+              position:"fixed",
+              top:"30%",
+              left:"35%",
+              border:"solid 1px black",
+              borderRadius:"6px"  
+            }}
+            >
+              <div className='d-flex justify-content-center' style={{
+                paddingTop:"80px"
+                
+              }}>
+            are you confirm to clear chat?
+              
+            </div>
+            <div style={{paddingLeft:"120px",paddingTop:"20px"}}>
+            <button className='btn btn-danger'onClick={()=>{setbox(false)}}>cancel</button>&nbsp;
+              <button className='btn btn-success'>confirm</button>
+              </div>
+            </div>
+            </>
+          }
         </form>
       </div>
     </div>
