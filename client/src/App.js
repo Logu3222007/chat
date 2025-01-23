@@ -3,21 +3,18 @@ import { io } from 'socket.io-client';
 
 const App = () => {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]); // State to keep track of all messages
+  const [messages, setMessages] = useState([]);
   const [socketio, setSocketio] = useState(null);
-  const [box,setbox] = useState(false)
-  console.log('msg',messages)
+  const [box, setbox] = useState(false);
 
   useEffect(() => {
     const socket = io('https://chat-service-48er.onrender.com');
     setSocketio(socket);
 
-    // Listen for messages from the server
     socket.on('welcome', (data) => {
       console.log(data);
     });
 
-    // Listen for broadcast messages from the server
     socket.on('broad_cast_msg', (data) => {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -26,63 +23,42 @@ const App = () => {
     });
 
     return () => {
-      socket.off('broad_cast_msg'); // Cleanup on component unmount
+      socket.off('broad_cast_msg');
       socket.disconnect();
     };
   }, []);
-  // useEffect(() => {
-  //   // Fetch messages from the backend when the component mounts
-  //   const fetchMessages = async () => {
-  //     try {
-  //       const response = await fetch('https://chat-service-48er.onrender.com');
-  //       const data = await response.json();
-  //       setMessages(data.map(msg => ({ text: msg.text, sender: 'server' })));
-  //     } catch (err) {
-  //       console.error('Error fetching messages:', err);
-  //     }
-  //   };
 
-  //   fetchMessages();
-  // }, []);
   const submitHandler = (e) => {
     e.preventDefault();
 
     if (socketio && message.trim() !== '') {
-      // Emit the message to the server
       socketio.emit('message', message);
 
-      // Update the local state to display the message immediately
       setMessages((prevMessages) => [
         ...prevMessages,
         { text: message, sender: 'client' },
       ]);
 
-      // Clear the input field
       setMessage('');
     }
   };
 
   useEffect(() => {
-    // Get the message box DOM element after a new message is added
     const messageBox = document.querySelector('#message-box');
     if (messageBox) {
-      // Scroll to the bottom of the message box
       messageBox.scrollTop = messageBox.scrollHeight;
     }
-  }, [messages]); // Run this effect when messages change
+  }, [messages]);
+
   const clearHandler = async () => {
     try {
-      // Send DELETE request to the server to delete all messages
       const res = await fetch('https://chat-service-48er.onrender.com', {
         method: 'DELETE',
       });
-  
-      // Check if the response is successful
+
       if (res.status === 200) {
-        setbox(false)
-        
-        // Optionally, you could clear the local message state here too
-        setMessages([]); // Clears the messages from the UI immediately
+        setbox(false);
+        setMessages([]);
       } else {
         alert('Failed to delete messages.');
       }
@@ -91,7 +67,6 @@ const App = () => {
       alert('An error occurred while deleting messages.');
     }
   };
-  
 
   return (
     <div>
@@ -102,11 +77,11 @@ const App = () => {
           position: 'fixed',
           top: '20%',
           left: '50%',
-          transform: 'translateX(-50%)', // Center horizontally
+          transform: 'translateX(-50%)',
           padding: '10px',
-          width: '400px',
-          maxWidth: '90%', // Ensure the box doesn't exceed 90% of the screen width
-          maxHeight: '50vh', // Limit the height of the message box to 50% of the viewport height
+          width: '90%',
+          maxWidth: '400px',
+          maxHeight: '50vh',
           overflowY: 'auto',
         }}
       >
@@ -117,19 +92,19 @@ const App = () => {
               position: 'relative',
               left: msg.sender === 'client' ? '1%' : null,
               right: msg.sender === 'client' ? '1%' : null,
-              marginTop: '10px', // Add some spacing between messages
-              textAlign: msg.sender === 'client' ? 'right' : 'left', // Align based on sender
+              marginTop: '10px',
+              textAlign: msg.sender === 'client' ? 'right' : 'left',
             }}
           >
             <span
               style={{
                 padding: '10px',
-                backgroundColor: msg.sender === 'client' ? 'green' : 'gray', // Green for client, gray for server
+                backgroundColor: msg.sender === 'client' ? 'green' : 'gray',
                 color: 'white',
                 borderRadius: '5px',
                 display: 'inline-block',
-                maxWidth: '225px', // Max width for larger screens
-                wordWrap: 'break-word', // Allows text to wrap to the next line
+                maxWidth: '225px',
+                wordWrap: 'break-word',
               }}
             >
               {msg.text}
@@ -146,10 +121,11 @@ const App = () => {
             position: 'fixed',
             bottom: '10%',
             display: 'flex',
-            width: '80%',
-            maxWidth: '600px', // Limit max width for larger screens
-            margin: '0 auto', // Centers the form horizontally
+            width: '90%',
+            maxWidth: '600px',
+            margin: '0 auto',
             padding: '0 10px',
+            justifyContent: 'space-between', // Ensures the buttons have space
           }}
         >
           <input
@@ -158,7 +134,7 @@ const App = () => {
             onChange={(e) => setMessage(e.target.value)}
             value={message}
             style={{
-              flexGrow: 1, // Make input flexible to fill available space
+              flexGrow: 1,
               height: '45px',
               paddingLeft: '20px',
               fontSize: '16px',
@@ -170,35 +146,57 @@ const App = () => {
             className="btn btn-success"
             style={{ marginLeft: '10px' }}
             value="Send"
-          />&nbsp;
-          <button className='btn btn-danger'onClick={()=>{setbox(true)}}>clear</button>
-          {
-            box&&<>
-            <div 
-            style={{backgroundColor:"lightgrey",
-              width:"400px",
-              height:"200px",
-              position:"fixed",
-              top:"30%",
-              left:"35%",
-              border:"solid 1px black",
-              borderRadius:"6px"  
+          />
+          <button
+            className="btn btn-danger"
+            onClick={() => {
+              setbox(true);
             }}
-            >
-              <div className='d-flex justify-content-center' style={{
-                paddingTop:"80px"
-                
-              }}>
-            are you confirm to clear chat?
-              
-            </div>
-            <div style={{paddingLeft:"120px",paddingTop:"20px"}}>
-            <button className='btn btn-danger'onClick={()=>{setbox(false)}}>cancel</button>&nbsp;
-              <button className='btn btn-success'onClick={clearHandler}>confirm</button>
+            style={{
+              marginLeft: '10px',
+            }}
+          >
+            Clear
+          </button>
+
+          {/* Clear Confirmation Modal */}
+          {box && (
+            <>
+              <div
+                style={{
+                  backgroundColor: 'lightgrey',
+                  width: '90%',
+                  maxWidth: '400px',
+                  height: '200px',
+                  position: 'fixed',
+                  top: '30%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  border: 'solid 1px black',
+                  borderRadius: '6px',
+                  padding: '20px',
+                }}
+              >
+                <div className="d-flex justify-content-center" style={{ paddingTop: '50px' }}>
+                  Are you sure you want to clear the chat?
+                </div>
+                <div style={{ paddingTop: '20px', textAlign: 'center' }}>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => {
+                      setbox(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  &nbsp;
+                  <button className="btn btn-success" onClick={clearHandler}>
+                    Confirm
+                  </button>
+                </div>
               </div>
-            </div>
             </>
-          }
+          )}
         </form>
       </div>
     </div>
